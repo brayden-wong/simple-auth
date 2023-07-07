@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres
+    networks:
+      - simple-auth
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: auth
+    ports:
+      - 5432:5432
+    volumes:
+      - auth:/var/lib/postgresql/data
+
+  # dev:
+  #   build:
+  #     context: .
+  #     target: development
+  #     dockerfile: ./dockerfile
+  #   ports:
+  #     - 8080:8080
+  #   command: sh -c "./dev.sh"
+  #   networks:
+  #     - simple-auth
+  #   env_file: .env.docker
+  #   volumes:
+  #     - .:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   restart: unless-stopped
+
+networks:
+  simple-auth:
+    external: false
+
+volumes:
+  auth:
+    external: false
