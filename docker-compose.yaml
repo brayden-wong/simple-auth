@@ -24,7 +24,7 @@ services:
   #   command: sh -c "./dev.sh"
   #   networks:
   #     - simple-auth
-  #   env_file: .env.docker
+  #   env_file: .env
   #   volumes:
   #     - .:/usr/src/app
   #     - /usr/src/app/node_modules
