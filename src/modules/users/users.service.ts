@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { like } from 'drizzle-orm';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { eq, like } from 'drizzle-orm';
 import { users } from '@/schemas';
+import { createSHA256, cuid } from '@/utils';
+
 import { type Database, InjectDrizzle } from '@/modules/database';
 import { type CreateUserDto } from './users.types';
-import { createSHA256, cuid } from '@/utils';
 
 @Injectable()
 export class UsersService {
@@ -37,5 +42,30 @@ export class UsersService {
       .execute();
 
     return user;
+  }
+
+  async updatePassword({
+    username,
+    password,
+  }: {
+    username: string;
+    password: string;
+  }) {
+    return await this.db.transaction(async (tx) => {
+      const user = await tx.query.users.findFirst({
+        where: (users, { eq }) => eq(users.email, username),
+      });
+
+      if (!user) throw new NotFoundException('User not found');
+
+      const hash = createSHA256(password);
+
+      return await tx
+        .update(users)
+        .set({ password: hash })
+        .where(eq(users.id, user.id))
+        .returning()
+        .execute();
+    });
   }
 }

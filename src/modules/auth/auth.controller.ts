@@ -1,4 +1,12 @@
-import { Body, Controller, Inject, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Inject,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateUserDto, UsersService } from '../users';
 import { AuthService } from './services';
 import { LocalGuard } from './guards';
@@ -8,7 +16,7 @@ import { Request } from 'express';
 export class AuthController {
   constructor(
     @Inject(UsersService)
-    private readonly userService: UsersService,
+    private readonly usersService: UsersService,
     private readonly authService: AuthService,
   ) {}
 
@@ -17,7 +25,7 @@ export class AuthController {
     @Body()
     createUserDto: CreateUserDto,
   ) {
-    const user = await this.userService.createUser(createUserDto);
+    const user = await this.usersService.createUser(createUserDto);
 
     return user;
   }
@@ -26,5 +34,16 @@ export class AuthController {
   @UseGuards(LocalGuard)
   async login(@Req() req: Request) {
     return req.user;
+  }
+
+  @Patch('update-password')
+  async updatePassword(
+    @Body()
+    updatePassword: {
+      username: string;
+      password: string;
+    },
+  ) {
+    return this.usersService.updatePassword(updatePassword);
   }
 }
