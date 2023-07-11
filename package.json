@@ -16,6 +16,7 @@
     "generate": "drizzle-kit generate:pg --config=drizzle.config.ts",
     "migrate": "tsx ./migrate.ts",
     "docker": "docker-compose up --build -d",
+    "studio": "drizzle-kit studio --port 5555",
     "drop": "drizzle-kit drop"
   },
   "dependencies": {

@@ -14,21 +14,21 @@ services:
     volumes:
       - auth:/var/lib/postgresql/data
 
-  # dev:
-  #   build:
-  #     context: .
-  #     target: development
-  #     dockerfile: ./dockerfile
-  #   ports:
-  #     - 3000:3000
-  #   command: sh -c "./dev.sh"
-  #   networks:
-  #     - simple-auth
-  #   env_file: .env
-  #   volumes:
-  #     - .:/usr/src/app
-  #     - /usr/src/app/node_modules
-  #   restart: unless-stopped
+  dev:
+    build:
+      context: .
+      target: development
+      dockerfile: ./dockerfile
+    ports:
+      - 3000:3000
+    command: sh -c "./dev.sh"
+    networks:
+      - simple-auth
+    env_file: .env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
 
 networks:
   simple-auth:
