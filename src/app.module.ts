@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './modules/auth';
 import { UsersModule } from './modules/users';
 import { DrizzleModule } from './modules/database';
-import { UsersController } from './users/users.controller';
 
 @Module({
   imports: [
@@ -15,6 +14,6 @@ import { UsersController } from './users/users.controller';
     DrizzleModule,
     UsersModule,
   ],
-  controllers: [UsersController],
+  controllers: [],
 })
 export class AppModule {}
