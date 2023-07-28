@@ -1,4 +1,6 @@
 import { pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import { accounts } from './accounts';
 
 export const users = pgTable(
   'users',
@@ -15,3 +17,7 @@ export const users = pgTable(
     emailIndex: uniqueIndex('emailIndex').on(t.email),
   }),
 );
+
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+}));

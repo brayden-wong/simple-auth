@@ -4,13 +4,13 @@ import {
   Inject,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Public } from '@/utils/decorators';
 import { CreateUserDto, UsersService } from '../users';
 import { AuthService } from './services';
 import { LocalGuard } from './guards';
-import { Request } from 'express';
+import { CurrentUser } from '@/utils/decorators/current.user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -20,6 +20,7 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
+  @Public()
   @Post('register')
   async register(
     @Body()
@@ -30,10 +31,12 @@ export class AuthController {
     return user;
   }
 
-  @Post('login')
+  @Public()
   @UseGuards(LocalGuard)
-  async login(@Req() req: Request) {
-    return req.user;
+  @Post('login')
+  async login(@CurrentUser('sub') userId: string) {
+    console.log(userId);
+    return this.authService.login(userId);
   }
 
   @Patch('update-password')

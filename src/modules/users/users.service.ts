@@ -5,10 +5,11 @@ import {
 } from '@nestjs/common';
 import { eq, like } from 'drizzle-orm';
 import { users } from '@/schemas';
-import { createSHA256, cuid } from '@/utils';
+import { createAES, cuid } from '@/utils';
 
 import { type Database, InjectDrizzle } from '@/modules/database';
-import { type CreateUserDto } from './users.types';
+import { QueryParam, type CreateUserDto, Account } from './users.types';
+import { accounts } from '@/schemas/accounts';
 
 @Injectable()
 export class UsersService {
@@ -20,7 +21,7 @@ export class UsersService {
   async createUser(createUserDto: CreateUserDto) {
     const { password, email, ...createUser } = createUserDto;
 
-    const hash = createSHA256(password);
+    const hash = createAES(password);
 
     return await this.db
       .insert(users)
@@ -33,15 +34,48 @@ export class UsersService {
       .returning();
   }
 
-  async findUser(username: string) {
-    const [user] = await this.db
-      .select()
-      .from(users)
-      .where(like(users.email, `%${username}%`))
-      .limit(1)
-      .execute();
+  async findUser({ query, value }: QueryParam) {
+    const data = await this.db.transaction(async (tx) => {
+      const returnedQuery = await this.getQuery({ query, value });
 
-    return user;
+      const userInfo = await tx.query.users.findFirst({
+        where: returnedQuery,
+      });
+
+      if (!userInfo) throw new UnauthorizedException('User not authorized');
+
+      const user = await this.db
+        .select({
+          id: users.id,
+          name: users.name,
+          email: users.email,
+          password: users.password,
+          account: {
+            id: accounts.id,
+            username: accounts.username,
+            userId: accounts.userId,
+          },
+        })
+        .from(users)
+        .where(eq(users.id, userInfo.id))
+        .leftJoin(accounts, eq(accounts.userId, userInfo.id))
+        .execute();
+
+      return user;
+    });
+
+    const accArray: Array<Account> = [];
+    data.map((user) => {
+      accArray.push(user.account);
+    });
+
+    return {
+      id: data[0].id,
+      name: data[0].name,
+      email: data[0].email,
+      password: data[0].password,
+      accounts: accArray,
+    };
   }
 
   async updatePassword({
@@ -58,7 +92,7 @@ export class UsersService {
 
       if (!user) throw new NotFoundException('User not found');
 
-      const hash = createSHA256(password);
+      const hash = createAES(password);
 
       return await tx
         .update(users)
@@ -67,5 +101,9 @@ export class UsersService {
         .returning()
         .execute();
     });
+  }
+
+  private async getQuery({ query, value }: QueryParam) {
+    return query === 'id' ? eq(users.id, value) : eq(users.email, value);
   }
 }

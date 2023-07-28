@@ -17,6 +17,6 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
 
     if (!user) throw new HttpException('Invalid Credentials', 401);
 
-    return user;
+    return { sub: user.id };
   }
 }
