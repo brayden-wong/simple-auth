@@ -14,7 +14,6 @@ export class AtStrategy extends PassportStrategy(Strategy, 'at') {
   }
 
   validate(payload: any) {
-    console.log('at payload', payload);
     return payload;
   }
 }

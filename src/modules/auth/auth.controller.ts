@@ -35,7 +35,6 @@ export class AuthController {
   @UseGuards(LocalGuard)
   @Post('login')
   async login(@CurrentUser('sub') userId: string) {
-    console.log(userId);
     return this.authService.login(userId);
   }
 

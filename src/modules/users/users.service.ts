@@ -67,7 +67,8 @@ export class UsersService {
 
     const accArray: Array<Account> = [];
     data.map((user) => {
-      user.account.password = decrypt(user.account.password, user.password);
+      if (user.account)
+        user.account.password = decrypt(user.account.password, user.password);
       accArray.push(user.account);
     });
 
