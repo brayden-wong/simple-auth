@@ -4,7 +4,7 @@ import { Client } from 'pg';
 import * as dotenv from 'dotenv';
 
 dotenv.config({
-  path: `.env`,
+  path: `.env.migration`,
 });
 
 const main = async () => {
