@@ -3,13 +3,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { eq, like } from 'drizzle-orm';
-import { users } from '@/schemas';
-import { createAES, cuid } from '@/utils';
-
-import { type Database, InjectDrizzle } from '@/modules/database';
-import { QueryParam, type CreateUserDto, Account } from './users.types';
+import { eq } from 'drizzle-orm';
 import { accounts } from '@/schemas/accounts';
+import { users } from '@/schemas';
+import { createAES, decrypt, cuid } from '@/utils';
+
+import { QueryParam, type CreateUserDto, Account } from './users.types';
+import { type Database, InjectDrizzle } from '@/modules/database';
 
 @Injectable()
 export class UsersService {
@@ -53,6 +53,7 @@ export class UsersService {
           account: {
             id: accounts.id,
             username: accounts.username,
+            password: accounts.password,
             userId: accounts.userId,
           },
         })
@@ -66,6 +67,7 @@ export class UsersService {
 
     const accArray: Array<Account> = [];
     data.map((user) => {
+      user.account.password = decrypt(user.account.password, user.password);
       accArray.push(user.account);
     });
 
@@ -101,6 +103,10 @@ export class UsersService {
         .returning()
         .execute();
     });
+  }
+
+  async getUserAccounts({ query, value }: QueryParam) {
+    const data = await this.findUser({ query, value });
   }
 
   private async getQuery({ query, value }: QueryParam) {

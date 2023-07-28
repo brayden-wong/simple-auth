@@ -14,3 +14,8 @@ export const compareAES = (
 
   return data === decryptedHash;
 };
+
+export const decrypt = (
+  value: string,
+  secret: string = process.env.PASSWORD_SECRET,
+) => AES.decrypt(value, secret).toString(enc.Utf8);

@@ -12,5 +12,6 @@ export type QueryParam = {
 export type Account = {
   id: string;
   username: string;
+  password: string;
   userId: string;
 };
